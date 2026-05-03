@@ -35,6 +35,14 @@ class WhyyTorch:
         
     def __repr__(self):
         return f"Label: {self.label} Value: {self.data} Grad: {self.grad}"
+
+    @property
+    def shape(self):
+        """Return the underlying data shape."""
+        return self.data.shape
+
+    def __len__(self):
+        return len(self.data)
     
     @staticmethod
     def matrix_multiply(a, b):
@@ -189,6 +197,34 @@ class WhyyTorch:
         out._backward = backward
         return out
 
+    def exp(self):
+        """Apply exp elementwise."""
+        e = np.exp(self.data)
+        out = WhyyTorch(
+            e,
+            requires_grad=self.requires_grad,
+            _op="exp",
+            children=(self,),
+        )
+        def backward():
+            self._accumulate_grad(e * out.grad)
+        out._backward = backward
+        return out
+
+    def log(self):
+        """Apply natural log elementwise."""
+        l = np.log(self.data)
+        out = WhyyTorch(
+            l,
+            requires_grad=self.requires_grad,
+            _op="log",
+            children=(self,),
+        )
+        def backward():
+            self._accumulate_grad((1.0 / self.data) * out.grad)
+        out._backward = backward
+        return out
+
     def __add__(self, other):
         """Add two tensors."""
         other = self._coerce(other)
@@ -308,7 +344,35 @@ class WhyyTorch:
         self._accumulate_grad(grad)
         for v in reversed(topo):
             v._backward()
-    
+
+    def one_hot(self, num_classes=None, indices=None):
+        """Return one-hot encoded rows for integer indices.
+
+        Args:
+            num_classes: Total number of classes. If None, inferred as max(index)+1.
+            indices: Optional integer ids. If None, use this tensor's data.
+        """
+        # Backward-compatibility for old positional style one_hot(indices, num_classes).
+        if indices is None and num_classes is not None and not np.isscalar(num_classes):
+            indices = num_classes
+            num_classes = None
+
+        src = self.data if indices is None else indices
+        idx = np.array(src, dtype=np.int64).reshape(-1)
+
+        if idx.size == 0:
+            raise ValueError("indices must contain at least one element")
+
+        if num_classes is None:
+            num_classes = int(idx.max()) + 1
+
+        if idx.min() < 0 or idx.max() >= num_classes:
+            raise ValueError("indices contain values outside [0, num_classes)")
+
+        out_data = np.zeros((idx.shape[0], int(num_classes)), dtype=np.float32)
+        out_data[np.arange(idx.shape[0]), idx] = 1.0
+        return WhyyTorch(out_data, requires_grad=False, _op="one_hot")
+        
 class Linear:
     """A fully connected layer using WhyyTorch parameters."""
 
