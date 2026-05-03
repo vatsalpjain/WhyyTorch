@@ -373,6 +373,42 @@ class WhyyTorch:
         out_data[np.arange(idx.shape[0]), idx] = 1.0
         return WhyyTorch(out_data, requires_grad=False, _op="one_hot")
         
+    def __getitem__(self, idx):
+        """Differentiable indexing. Mirrors PyTorch's tensor[idx] semantics.
+
+        Supports integer-array indexing (for embedding lookups) and slices.
+        Gradients are scattered back into `self` via np.add.at so repeated
+        indices accumulate correctly.
+        """
+        out = WhyyTorch(
+            self.data[idx],
+            requires_grad=self.requires_grad,
+            _op="getitem",
+            children=(self,),
+        )
+        def backward():
+            if self.requires_grad:
+                grad = np.zeros_like(self.data)
+                np.add.at(grad, idx, out.grad)
+                self._accumulate_grad(grad)
+        out._backward = backward
+        return out
+
+    def reshape(self, *shape):
+        """Reshape the tensor, preserving the computation graph."""
+        original_shape = self.data.shape
+        out = WhyyTorch(
+            self.data.reshape(*shape),
+            requires_grad=self.requires_grad,
+            _op="reshape",
+            children=(self,),
+        )
+        def backward():
+            self._accumulate_grad(out.grad.reshape(original_shape))
+        out._backward = backward
+        return out
+
+
 class Linear:
     """A fully connected layer using WhyyTorch parameters."""
 
@@ -434,4 +470,22 @@ def mse_loss(pred, target,epoch=0):
         print(f"Loss: {((pred - target) ** 2).mean().data}")
     return ((pred - target) ** 2).mean()
 
-__all__ = ["WhyyTorch", "Linear", "MLP", "mse_loss"]
+def cross_entropy_loss(logits, target):
+    """Return mean cross-entropy loss from unnormalized logits and target indices."""
+    # Numerically stable softmax.
+    max_logits = np.max(logits.data, axis=1, keepdims=True)
+    shift = logits - WhyyTorch(max_logits, requires_grad=False)
+    counts = shift.exp()
+    probs = counts / counts.sum(axis=1, keepdims=True)
+
+    if isinstance(target, WhyyTorch):
+        target_idx = target.data
+    else:
+        target_idx = target
+    target_wt = WhyyTorch(target_idx, requires_grad=False)
+    y_onehot = target_wt.one_hot(num_classes=logits.data.shape[1])
+
+    log_probs = probs.log()
+    return -(log_probs * y_onehot).sum(axis=1).mean()
+
+__all__ = ["WhyyTorch", "Linear", "MLP", "mse_loss", "cross_entropy_loss"]
