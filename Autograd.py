@@ -34,7 +34,7 @@ class WhyyTorch:
             )
         
     def __repr__(self):
-        return f"Label: {self.label} Value: {self.data} Grad: {self.grad}"
+        return f"Label: {self.label} Value: {self.data}"
 
     @property
     def shape(self):
@@ -170,6 +170,11 @@ class WhyyTorch:
         out._backward = backward
         return out
 
+    def var(self, axis=None, keepdims=False):
+        """Compute population variance (ddof=0), preserving the computation graph."""
+        u = self.mean(axis=axis, keepdims=True)
+        return ((self - u) ** 2).mean(axis=axis, keepdims=keepdims)
+
     def relu(self):
         """Apply ReLU elementwise."""
         out = WhyyTorch(
@@ -222,6 +227,20 @@ class WhyyTorch:
         )
         def backward():
             self._accumulate_grad((1.0 / self.data) * out.grad)
+        out._backward = backward
+        return out
+
+    def sqrt(self):
+        """Apply sqrt elementwise."""
+        s = np.sqrt(self.data)
+        out = WhyyTorch(
+            s,
+            requires_grad=self.requires_grad,
+            _op="sqrt",
+            children=(self,),
+        )
+        def backward():
+            self._accumulate_grad((0.5 / s) * out.grad)
         out._backward = backward
         return out
 
