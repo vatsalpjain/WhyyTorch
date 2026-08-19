@@ -3,7 +3,7 @@
 Positive images: drag a box around the ball.
 Negative images: mark as no-ball (confidence target = 0).
 
-Output: image/labels.json
+Output: data/labels.json
 
 Controls
 --------
@@ -25,7 +25,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-DATA_DIR = Path(__file__).resolve().parent / "data"
+DATA_DIR = Path(__file__).resolve().parent / "images"
 LABELS_PATH = Path(__file__).resolve().parent / "labels.json"
 
 

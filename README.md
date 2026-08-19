@@ -1,16 +1,46 @@
-### CNN
-
-1. What problem does this solve?
-
--> In CNN we use filters than learn shapes cause they can correlate close by pixels and Also The Parameter count is significantly less , Cause Shapes are used over full images
-Fully Connected : 28 x 28 image = 784 * 128 neurons = ~100,480 parameters
-CNN             :  32 filters of 3 x 3 + =  320 parameters
-
-2. What are the trade-offs?
-
--> Reusing the same filter , like if a ball is in one corner and one more ball is in other corner the filter will learn ball and identify both with it's own weights , no need to take every pixels weights
-
-![1785245842181](image/README/1785245842181.png)
-
-
-**Mental model:** forward = one weight, many uses. backward = collect blame from every use, then update once.
+```
+AI/
+├── pyproject.toml
+├── uv.lock
+├── .python-version
+├── .gitignore
+│
+├── 00-foundation/
+│   ├── Autograd.py
+│   ├── Autograd.ipynb
+│   └── build_makemore_backprop_ninja.ipynb
+│
+├── 01-mlp/
+│   ├── MLP_1.py
+│   └── visualize.py
+│
+├── 02-bigram/
+│   ├── bigram.txt
+│   ├── Bigram_2.ipynb
+│   └── BigramMLP_3.ipynb
+│
+├── 03-wavenet/
+│   ├── Bigram_4.ipynb
+│   ├── visualize4.py
+│   ├── make_linkedin_visuals.py
+│   ├── wavenet_visualization.png
+│   └── linkedin_assets/
+│
+├── 04-cnn/
+│   ├── CNN.ipynb
+│   └── README.md
+│
+├── 05-football-cnn/
+│   ├── CNN_football.ipynb
+│   ├── train_model_x.py
+│   ├── model_x_weights.npz
+│   ├── model_x_val_preview.png
+│   └── data/
+│       ├── images/
+│       ├── labels.json
+│       ├── label_images.py
+│       └── augment_images.py
+│
+└── 06-rnn/
+    └── rnn.ipynb
+```

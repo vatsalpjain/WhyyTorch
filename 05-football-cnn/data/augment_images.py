@@ -1,17 +1,17 @@
 """Generate augmented copies of labeled images.
 
-Saves new PNGs into image/data/ as sequential image_N.png files
-and appends entries to image/labels.json.
+Saves new PNGs into data/images/ as sequential image_N.png files
+and appends entries to data/labels.json.
 
 Naming:
     image_7.png  ->  image_61.png, image_62.png, ...
 
 Usage:
-    python image/augment_images.py --source image_7.png
-    python image/augment_images.py --all
-    python image/augment_images.py --all-ball
-    python image/augment_images.py --rename-existing
-    python image/augment_images.py --source image_7.png --dry-run
+    python 05-football-cnn/data/augment_images.py --source image_7.png
+    python 05-football-cnn/data/augment_images.py --all
+    python 05-football-cnn/data/augment_images.py --all-ball
+    python 05-football-cnn/data/augment_images.py --rename-existing
+    python 05-football-cnn/data/augment_images.py --source image_7.png --dry-run
 """
 
 from __future__ import annotations
@@ -27,7 +27,7 @@ from typing import Callable
 import cv2
 import numpy as np
 
-DATA_DIR = Path(__file__).resolve().parent / "data"
+DATA_DIR = Path(__file__).resolve().parent / "images"
 LABELS_PATH = Path(__file__).resolve().parent / "labels.json"
 
 IMAGE_NAME_RE = re.compile(r"^image_(\d+)\.png$")

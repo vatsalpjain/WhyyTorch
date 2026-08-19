@@ -13,12 +13,18 @@ Run:
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
 import numpy as np
+
+HERE = Path(__file__).resolve().parent
+ROOT = HERE.parent
+sys.path.insert(0, str(ROOT / "00-foundation"))
+BIGRAM_DATA = ROOT / "02-bigram" / "bigram.txt"
 
 from Autograd import WhyyTorch as wt, cross_entropy_loss
 
@@ -167,7 +173,7 @@ def count_params(model):
     return sum(p.data.size for p in model.parameters())
 
 
-def load_bigram_data(path="bigram.txt", seed=42):
+def load_bigram_data(path=BIGRAM_DATA, seed=42):
     words = open(path).read().splitlines()
     stoi = {".": 0, **{chr(ord("a") + i): i + 1 for i in range(26)}}
     np.random.seed(seed)
@@ -486,7 +492,7 @@ def main():
     parser = argparse.ArgumentParser(description="WaveNet visualization for LinkedIn post")
     parser.add_argument("--steps", type=int, default=2000, help="training steps (use 500 for quick preview)")
     parser.add_argument("--eval-every", type=int, default=50, help="eval interval")
-    parser.add_argument("--out", type=str, default="wavenet_visualization.png", help="output image path")
+    parser.add_argument("--out", type=str, default=str(HERE / "wavenet_visualization.png"), help="output image path")
     parser.add_argument("--no-train", action="store_true", help="skip training, use synthetic loss curves")
     args = parser.parse_args()
 

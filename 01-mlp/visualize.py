@@ -8,9 +8,15 @@ Run:
 	uv run .\visualize.py
 """
 
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "00-foundation"))
+BIGRAM_DATA = ROOT / "02-bigram" / "bigram.txt"
+
 import numpy as np
 import matplotlib.pyplot as plt
-from pathlib import Path
 
 from Autograd import WhyyTorch, MLP, cross_entropy_loss
 
@@ -159,7 +165,7 @@ def main():
 # All three are rendered side-by-side by main_bigram().
 
 
-def load_bigram_words(path="bigram.txt"):
+def load_bigram_words(path=BIGRAM_DATA):
 	"""Load words and build the char vocabulary used by BigramMLP.ipynb."""
 	words = open(path).read().splitlines()
 	stoi = {".": 0, **{chr(ord("a") + i): i + 1 for i in range(26)}}
@@ -398,7 +404,7 @@ def draw_bigram_mlp(ax, max_nodes_drawn=10):
 def main_bigram():
 	"""Run BigramMLP training + LR sweep and render the three LinkedIn plots."""
 	print("Loading bigram dataset...")
-	words, stoi, itos = load_bigram_words("bigram.txt")
+	words, stoi, itos = load_bigram_words()
 	(Xtr, Ytr), (Xdev, Ydev), (Xte, Yte) = build_bigram_splits(words, stoi)
 	print(f"  train: {Xtr.shape}, dev: {Xdev.shape}, test: {Xte.shape}")
 

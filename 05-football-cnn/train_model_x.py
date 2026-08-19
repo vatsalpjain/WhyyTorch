@@ -14,6 +14,7 @@ Edit the CONFIG block below to change training params.
 from __future__ import annotations
 
 import json
+import sys
 import time
 from pathlib import Path
 
@@ -22,11 +23,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numpy.lib.stride_tricks import as_strided
 
+ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT.parent / "00-foundation"))
+
 from Autograd import WhyyTorch as wt
 
-ROOT = Path(__file__).resolve().parent
-DATA_DIR = ROOT / "image" / "data"
-LABELS_PATH = ROOT / "image" / "labels.json"
+DATA_DIR = ROOT / "data" / "images"
+LABELS_PATH = ROOT / "data" / "labels.json"
 CKPT_PATH = ROOT / "model_x_weights.npz"
 VIS_PATH = ROOT / "model_x_val_preview.png"
 

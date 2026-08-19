@@ -1,6 +1,6 @@
 """Train the Bigram_4 WaveNet model and export LinkedIn-ready matplotlib visuals.
 
-End-to-end: load data -> train -> save four 1200x1200 PNGs into ./linkedin_assets/.
+End-to-end: load data -> train -> save four 1200x1200 PNGs into 03-wavenet/linkedin_assets/.
 Uses only numpy, matplotlib, and Autograd (WhyyTorch).
 
 Run:
@@ -9,11 +9,16 @@ Run:
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
 import numpy as np
+
+HERE = Path(__file__).resolve().parent
+ROOT = HERE.parent
+sys.path.insert(0, str(ROOT / "00-foundation"))
 
 from Autograd import WhyyTorch as wt, cross_entropy_loss
 
@@ -35,14 +40,14 @@ EVAL_EVERY = 100
 LR_HIGH = 0.1
 LR_LOW = 0.01
 SEED = 42
-DATA_PATH = "bigram.txt"
+DATA_PATH = ROOT / "02-bigram" / "bigram.txt"
 
 
 # ---------------------------------------------------------------------------
 # Visualization style constants
 # ---------------------------------------------------------------------------
 
-OUTPUT_DIR = Path("linkedin_assets")
+OUTPUT_DIR = HERE / "linkedin_assets"
 CHECKPOINT_PATH = OUTPUT_DIR / "wavenet_checkpoint.npz"
 HISTORY_PATH = OUTPUT_DIR / "training_history.npz"
 FIG_INCHES = 6.0
@@ -222,7 +227,7 @@ def build_split(word_list, stoi, block_size=BLOCK_SIZE):
     return np.array(xs, dtype=np.int64), np.array(ys, dtype=np.int64)
 
 
-def load_data(path="bigram.txt", seed=SEED):
+def load_data(path=ROOT / "02-bigram" / "bigram.txt", seed=SEED):
     words = open(path).read().splitlines()
     stoi, itos = load_vocab()
     np.random.seed(seed)
